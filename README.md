@@ -13,6 +13,7 @@ Example Use:
 from google.cloud import ndb
 from ndb_drf import ndb_mixins, ndb_generics
 from rest_framework import mixins
+from .serializers import SomeModelSerializer # Implementation coming
 
 class SomeModel(ndb.Model):
     field = ndb.StringField()
@@ -26,6 +27,7 @@ class SomeModelViewSet(
     mixins.RetrieveModelMixin
 ):
     model_class = SomeModel
+    serialize_class = SomeModelSerializer
 
     def get_queryset(self):
         return SomeModel.query() ## Note Difference from DRF, the query is returned, not the query results
