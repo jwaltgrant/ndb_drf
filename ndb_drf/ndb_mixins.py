@@ -1,13 +1,13 @@
 from __future__ import annotations
 import typing
 from rest_framework import mixins
-from rest_framework.response import 
+from rest_framework.response import Response
 
 class NDBDestroyModelMixin(mixins.DestroyModelMixin):
     def perform_destroy(self, instance: ndb.Model):
         instance.key.delete()
 
-class ListModelMixin:
+class NDBListModelMixin(mixins.ListModelMixin):
     """
     List a queryset.
     """
