@@ -2,6 +2,7 @@ from __future__ import annotations
 import typing
 from rest_framework import mixins
 from rest_framework.response import Response
+from .lazy_query import LazyQuery
 
 class NDBDestroyModelMixin(mixins.DestroyModelMixin):
     def perform_destroy(self, instance: ndb.Model):
@@ -12,7 +13,8 @@ class NDBListModelMixin(mixins.ListModelMixin):
     List a queryset.
     """
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
+        queryset = LazyQuery.create(self.get_queryset())
+        queryset = self.filter_queryset(queryset)
 
         page = self.paginate_queryset(queryset)
         if page is not None:

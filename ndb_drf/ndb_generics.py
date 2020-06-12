@@ -2,12 +2,11 @@ from __future__ import annotations
 import typing
 from rest_framework.generics import GenericAPIView
 from django.http import Http404
+from .lazy_query import LazyQuery
 
 class NDBGenericAPIView(GenericAPIView):
     """
     Generic API View that allows for use with Google NDB
-    Largest difference is that get query_set needs to return a 
-    ndb.Query object, rather than query results
     
     It is recomended to define the `model_class` property on the class
     as that alows for using query filtering rather that looping over key results
@@ -42,9 +41,9 @@ class NDBGenericAPIView(GenericAPIView):
         Get the Object by filtering with the model class
         This is the optimal implementation to use
         """
-        query_set = self.get_queryset()
-        query_set.filter(self.model_class.key == key)
-        return query_set.get()
+        queryset = LazyQuery.create(self.get_queryset())
+        queryset.filter(self.model_class.key == key)
+        return queryset.get()
 
     def _get_with_loop(self, key: ndb.Key):
         """
@@ -52,7 +51,8 @@ class NDBGenericAPIView(GenericAPIView):
         Then loop over, attempting to find a match of the key,
         return the object if key is found in query set results
         """
-        for _key in self.get_queryset().fetch(keys_only=True):
+        queryset = LazyQuery.create(self.get_queryset())
+        for _key in self.get_queryset():
             if _key == key:
                 return _key.get()
 
