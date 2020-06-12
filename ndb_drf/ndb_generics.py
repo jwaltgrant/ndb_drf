@@ -2,7 +2,6 @@ from __future__ import annotations
 import typing
 from rest_framework.generics import GenericAPIView
 from django.http import Http404
-from .lazy_query import LazyQuery
 
 class NDBGenericAPIView(GenericAPIView):
     """
@@ -16,7 +15,7 @@ class NDBGenericAPIView(GenericAPIView):
     lookup_field = 'key'
     model_class = None
 
-    def get_queryset(self):
+    def get_queryset(self) -> ndb.Query:
         """
         Get the list of items for this view.
         This must be an iterable, and may be a queryset.
@@ -36,23 +35,21 @@ class NDBGenericAPIView(GenericAPIView):
 
         return self.queryset
 
-    def _get_with_model(self, key: ndb.Key):
+    def _get_with_model(self, queryset: ndb.Query, key: ndb.Key):
         """
         Get the Object by filtering with the model class
         This is the optimal implementation to use
         """
-        queryset = LazyQuery.create(self.get_queryset())
-        queryset.filter(self.model_class.key == key)
+        queryset = queryset.filter(self.model_class.key == key)
         return queryset.get()
 
-    def _get_with_loop(self, key: ndb.Key):
+    def _get_with_loop(self, query_set: ndb.Query, key: ndb.Key):
         """
         Fetch the keys of the results of the query set
         Then loop over, attempting to find a match of the key,
         return the object if key is found in query set results
         """
-        queryset = LazyQuery.create(self.get_queryset())
-        for _key in self.get_queryset():
+        for _key in query_set:
             if _key == key:
                 return _key.get()
 
@@ -62,6 +59,8 @@ class NDBGenericAPIView(GenericAPIView):
         :raises: 404 if key is not in the query set
         :return: ndb.Model
         """
+        queryset = self.filter_queryset(self.get_queryset())
+
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
 
         assert lookup_url_kwarg in self.kwargs, (
@@ -77,9 +76,9 @@ class NDBGenericAPIView(GenericAPIView):
         obj = None
         
         if self.model_class:
-            obj = self._get_with_model(lookup_key)
+            obj = self._get_with_model(queryset, lookup_key)
         else:
-            obj = self._get_with_loop(lookup_key)
+            obj = self._get_with_loop(queryset, lookup_key)
         if not obj:
             raise Http404
         
