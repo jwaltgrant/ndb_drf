@@ -3,7 +3,7 @@ import pytest
 from google.cloud import ndb
 from ndb_drf.utils import key_to_urlsafe, key_to_ndb_key
 
-class KeyTests:
+class TestKeys:
     URL_SAFE = b'agZzfmZpcmVyDwsSBEtpbmQiBVRoaW5nDA'
 
     @pytest.mark.usefixtures("in_context")
@@ -18,7 +18,7 @@ class KeyTests:
         for _key in keys:
             key = key_to_ndb_key(_key)
             assert isinstance(key, ndb.Key)
-            assert key.kind() == 'fire'
-
+            assert key.kind() == 'Kind'
+            assert key.project() == 'fire'
 
 
