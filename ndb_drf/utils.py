@@ -18,3 +18,8 @@ def key_to_urlsafe(
         if isinstance(key, bytes):
             key = key.decode()
         return key
+
+def key_to_ndb_key(
+    key: typing.Union[ndb.Key, str, bytes]
+):
+    pass
