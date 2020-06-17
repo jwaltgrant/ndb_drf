@@ -3,7 +3,7 @@ from google.cloud import ndb
 
 def key_to_urlsafe(
     key: typing.Union[ndb.Key, str, bytes],
-    _as: typing.Union[str, bytes] = bytes
+    _as: typing.Union[typing.Type[str], typing.Type[bytes]] = bytes
 ) -> typing.Union[str, bytes]:
     if isinstance(key, ndb.Key):
         key = key.urlsafe()
@@ -21,5 +21,8 @@ def key_to_urlsafe(
 
 def key_to_ndb_key(
     key: typing.Union[ndb.Key, str, bytes]
-):
-    pass
+) -> ndb.Key:
+    if isinstance(key, ndb.Key):
+        return key
+    assert isinstance(key, (bytes, str)), 'Key must be either a String or Byte String'
+    return ndb.Key(urlsafe=key)
