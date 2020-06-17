@@ -11,7 +11,7 @@ There is no serialization helpers yet, but I plan to make a `ModelSerialize` imp
 Example Use:
 ```
 from google.cloud import ndb
-from ndb_drf import ndb_mixins, ndb_generics
+from ndb_drf import ndb_viewsets
 from rest_framework import mixins
 from .serializers import SomeModelSerializer # Implementation coming
 
@@ -19,17 +19,10 @@ class SomeModel(ndb.Model):
     field = ndb.StringField()
     another = ndb.IntegerField()
 
-class SomeModelViewSet(
-    ndb_generics.NDBGenericAPIView,
-    ndb_mixins.NDBDestroyModelMixin,
-    ndb_mixins.NDBListModelMixin,
-    mixins.CreateModelMixin,
-    mixins.RetrieveModelMixin
-):
+class SomeModelViewSet(ndb_viewsets.NDBModelViewSet):
     model_class = SomeModel
     serialize_class = SomeModelSerializer
 
     def get_queryset(self):
-        return SomeModel.query() ## Note Difference from DRF, the query is returned, not the query results
+        return SomeModel.query()
 ```
-You now have access to `get`, `get/<key>`, `post`, and `delete` just like normal DRF View Set
