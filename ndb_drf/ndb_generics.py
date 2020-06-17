@@ -2,6 +2,7 @@ from __future__ import annotations
 import typing
 from rest_framework.generics import GenericAPIView
 from django.http import Http404
+from .utils import key_to_ndb_key
 
 class NDBGenericAPIView(GenericAPIView):
     """
@@ -70,8 +71,7 @@ class NDBGenericAPIView(GenericAPIView):
             (self.__class__.__name__, lookup_url_kwarg)
         )
         lookup_key = self.kwargs.get(lookup_url_kwarg)
-        if isinstance(lookup_key, (bytes, str)):
-            lookup_key = ndb.Key(urlsafe=lookup_key)
+        lookup_key = key_to_ndb_key(lookup_key)
         
         obj = None
         
