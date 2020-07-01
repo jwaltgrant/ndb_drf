@@ -42,3 +42,18 @@ class NDBKeyField(URLSafeKeyField):
         key = self.validate_key(data)
         isinstance(key, ndb.Key)
         return key
+
+class NDBModelSerializer(serializers.Serializer):
+    serializer_field_mapping = {
+        ndb.KeyProperty: NDBKeyField,
+        ndb.IntegerProperty: serializers.IntegerField,
+        ndb.FloatProperty: serializers.FloatField,
+        ndb.BooleanProperty: serializers.BooleanField,
+        ndb.DateProperty: serializers.DateField,
+        ndb.DateTimeProperty: serializers.DateTimeField,
+        ndb.StringProperty: serializers.CharField,
+        ndb.TextProperty: serializers.CharField,
+        ndb.PickleProperty: serializers.CharField,
+        ndb.BlobProperty: serializers.CharField,
+        ndb.JsonProperty: serializers.JSONField
+    }
